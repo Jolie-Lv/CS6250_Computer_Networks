@@ -36,7 +36,7 @@ class DataCenter(Topo):
     "DataCenter Topology"
 
     def __init__(self, n=1, delay='0ms', fi=1,  cpu=.01, max_queue_size=None, **params):
-        """Star Topology with fi fan-in  zones.
+        """Start Topology with fi fan-in  zones.
            n: number of hosts per low level switch
            cpu: system fraction for each host
            bw: link bandwidth in Mb/s
@@ -59,6 +59,15 @@ class DataCenter(Topo):
         #NOTE: You MUST label low level switches s1x1, s1x2...s1xfi... sfix1, sfix2,... sfixfi  
         #NOTE: You MUST label hosts as h1x1x1, h1x1x2, ... hfixfixn     
         #HINT: Use a loop to construct the topology in pieces. Don't forget the link configuration.
+        for i in range(1, fi + 1):
+            mls = self.addSwitch('mls' + str(i))
+            self.addLink(tls, mls, **swlinkConfig)
+            for j in range(1, fi + 1):
+                lls = self.addSwitch('s' + str(i) + 'x' + str(j))
+                self.addLink(mls, lls, **swlinkConfig)
+                for h in range(1, n + 1):
+                    hst = self.addHost('h' + str(i) + 'x' + str(j) + 'x' + str(h), **hostConfig)
+                    self.addLink(lls, hst, **hostlinkConfig)
 
 
 
