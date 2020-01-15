@@ -11,7 +11,7 @@ from Message import *
 class StpSwitch(object):
 
     def __init__(self, idNum, topolink, neighbors):
-    # switchID = id of the switch (lowest value determines root switcha nd breaks ties.)
+    # switchID = id of the switch (lowest value determines root switch and breaks ties.)
     # topology = backlink to the Topology class. Used for sending messages.
     #   as follows: self.topology.send_message(message)
     # links = a list of the switch IDs linked to this switch.

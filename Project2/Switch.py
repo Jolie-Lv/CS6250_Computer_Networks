@@ -30,21 +30,37 @@ class Switch(StpSwitch):
 
     def __init__(self, idNum, topolink, neighbors):    
         # Invoke the super class constructor, which makes available to this object the following members:
-        # -self.switchID                   (the ID number of this switch object)
-        # -self.links                      (the list of swtich IDs connected to this switch object)
+        # -self.switchID (the ID number of this switch object)
+        # -self.links    (the list of swtich IDs connected to this switch object)
         super(Switch, self).__init__(idNum, topolink, neighbors)
         
         #TODO: Define a data structure to keep track of which links are part of / not part of the spanning tree.
+        
+        self.root = self.switchID
+        self.distance = 0
+        self.upstream = self.switchID
+        self.downstream = self.switchID
 
     def send_initial_messages(self):
         #TODO: This function needs to create and send the initial messages from this switch.
         #      Messages are sent via the superclass method send_message(Message msg) - see Message.py.
         #      Use self.send_message(msg) to send this.  DO NOT use self.topology.send_message(msg)
+        
+        for link in self.links:
+            self.send_message(Message(self.root, self.distance, self.switchID, link, False))
         return
         
     def process_message(self, message):
         #TODO: This function needs to accept an incoming message and process it accordingly.
         #      This function is called every time the switch receives a new message.
+        if message.root < self.root:
+            self.root = message.root
+            self.distance = message.distance + 1
+
+        if message.root == self.root and message.distance < self.distance:
+            self.distance = message.distance + 1
+            self.upstream = message.origin
+
         return
         
     def generate_logstring(self):

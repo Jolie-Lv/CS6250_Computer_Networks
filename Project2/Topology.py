@@ -39,9 +39,9 @@ class Topology(object):
             return        
 
         if message.destination in self.switches[message.origin].links:
-             self.messages.append(message)
+            self.messages.append(message)
         else:
-             print "Messages can only be sent to immediate neighbors"
+            print "Messages can only be sent to immediate neighbors"
 
     def run_spanning_tree(self):
         # This function drives the simulation of a Spanning Tree.  It first sends the initial 
