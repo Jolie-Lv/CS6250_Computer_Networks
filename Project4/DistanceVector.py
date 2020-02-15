@@ -21,55 +21,66 @@ from helpers import *
 class DistanceVector(Node):
     
     def __init__(self, name, topolink, outgoing_links, incoming_links):
-        ''' Constructor. This is run once when the DistanceVector object is
-        created at the beginning of the simulation. Initializing data structure(s)
-        specific to a DV node is done here.'''
-
         super(DistanceVector, self).__init__(name, topolink, outgoing_links, incoming_links)
-        
-        #TODO: Create any necessary data structure(s) to contain the Node's internal state / distance vector data    
-    
+
+        self.distance_vector = { self.name: 0 }
+        # Initially the DV contains only Node's outgoing links
+        for link in self.outgoing_links:
+            self.distance_vector[link.name] = int(link.weight)
+        # Counter variable for counting rounds
+        self.rounds = 0
 
     def send_initial_messages(self):
-        ''' This is run once at the beginning of the simulation, after all
-        DistanceVector objects are created and their links to each other are
-        established, but before any of the rest of the simulation begins. You
-        can have nodes send out their initial DV advertisements here. 
+        msg = (self.name, [])
+        for l in self.outgoing_links:
+            msg[1].append((l.name, int(l.weight)))
+        self.advertise(msg)
 
-        Remember that links points to a list of Neighbor data structure.  Access
-        the elements with .name or .weight '''
-
-        # TODO - Each node needs to build a message and send it to each of its neighbors
-        # HINT: Take a look at the skeleton methods provided for you in Node.py
-
-
-    def process_BF(self):
-        ''' This is run continuously (repeatedly) during the simulation. DV
-        messages from other nodes are received here, processed, and any new DV
-        messages that need to be sent to other nodes as a result are sent. '''
-
-        # Implement the Bellman-Ford algorithm here.  It must accomplish two tasks below:
-        # TODO 1. Process queued messages       
-        for msg in self.messages:            
-            pass
-        
+    def process_BF(self):      
+        update = False
+        for msg in self.messages:
+            cost = int(self.get_outgoing_neighbor_weight(msg[0]))
+            for vertex in msg[1]:
+                if vertex[0] not in self.distance_vector.keys():
+                    self.distance_vector[vertex[0]] = cost + vertex[1]
+                    update = True
+                else:
+                    # A Node will never advertise a negative distance to itself
+                    if vertex[0] != self.name:
+                        path_weight = self.distance_vector[vertex[0]]
+                        # If downstream advertised -99, set the cost to -99
+                        if vertex[1] == -99 and path_weight != -99:
+                            self.distance_vector[vertex[0]] = -99
+                            update = True
+                        elif path_weight > min(path_weight, cost + vertex[1]):
+                            # Udate path weight to minimum if not in a negative cycle
+                            if self.rounds < len(self.distance_vector.keys()) - 1:
+                                self.distance_vector[vertex[0]] = min(path_weight, cost + vertex[1])
+                                update = True
+                            else:
+                                # Negative cycle detected! Set the path weight to -99
+                                self.distance_vector[vertex[0]] = -99
+                                update = True
         # Empty queue
         self.messages = []
+        # Send updated DV to neighbors
+        if update == True:
+            # Increase count
+            self.rounds += 1
+            msg = (self.name, [])
+            for z in self.distance_vector:
+                msg[1].append((z, self.distance_vector[z]))
+            self.advertise(msg)
+    
+    def advertise(self, msg):
+        for neighbor in self.neighbor_names:
+            self.send_msg(msg, neighbor)
 
-        # TODO 2. Send neighbors updated distances               
+    def log_distances(self):       
+        add_entry(self.name, self.dv_string())
 
+    def dv_string(self):
+        distance_vector = list(
+            map(lambda i: '{}{}'.format(i, self.distance_vector[i]), self.distance_vector))
 
-    def log_distances(self):
-        ''' This function is called immedately after process_BF each round.  It 
-        prints distances to the console and the log file in the following format (no whitespace either end):
-        
-        A:A0,B1,C2
-        
-        Where:
-        A is the node currently doing the logging (self),
-        B and C are neighbors, with vector weights 1 and 2 respectively
-        NOTE: A0 shows that the distance to self is 0 '''
-        
-        # TODO: Use the provided helper function add_entry() to accomplish this task (see helpers.py).
-        # An example call that which prints the format example text above (hardcoded) is provided.        
-        add_entry("A", "A0,B1,C2")        
+        return ','.join(distance_vector)
