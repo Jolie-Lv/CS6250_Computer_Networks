@@ -52,10 +52,10 @@ class DistanceVector(Node):
                         if vertex[1] == -99 and path_weight != -99:
                             self.distance_vector[vertex[0]] = -99
                             update = True
-                        elif path_weight > min(path_weight, cost + vertex[1]):
+                        elif path_weight != -99 and path_weight > cost + vertex[1]:
                             # Udate path weight to minimum if not in a negative cycle
-                            if self.rounds < len(self.distance_vector.keys()) - 1:
-                                self.distance_vector[vertex[0]] = min(path_weight, cost + vertex[1])
+                            if self.rounds <= len(self.distance_vector.keys()) - 1:
+                                self.distance_vector[vertex[0]] = cost + vertex[1]
                                 update = True
                             else:
                                 # Negative cycle detected! Set the path weight to -99
