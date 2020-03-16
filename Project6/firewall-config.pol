@@ -1,0 +1,6 @@
+# CS 6250 Spring 2020 - Firewall Policy
+# Rule number, srcmac, dstmac, srcip, dstip, srcport, dstport, protocol, ipprotocol
+# Rule number is incremented each time - mostly for debug purposes
+# - for a rule element indicates that you don't need to match it.
+# Comments are on their own line
+
