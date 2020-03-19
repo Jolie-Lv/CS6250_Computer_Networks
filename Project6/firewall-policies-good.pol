@@ -4,6 +4,7 @@
 # - for a rule element indicates that you don't need to match it.
 # Comments are on their own line
 
-# Disallows access to TCP destination port 1080 from all computers
-1, -, -, -, -, -, 1080, T, -
-
+# Negate all hosts from accessing a SSH server on the east hosts (e1-e3).
+3, -, -, -, 10.0.0.2, 22, -, T, -
+4, -, -, -, 10.0.0.3, 22, -, T, -
+5, -, -, -, 10.0.0.4, 22, -, T, -

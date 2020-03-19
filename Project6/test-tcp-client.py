@@ -19,13 +19,21 @@ if not (len(sys.argv) == 3):
 # Create a TCP/IP socket
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
+# create a raw socket
+try:
+    s = socket.socket(socket.AF_INET, socket.SOCK_RAW, socket.IPPROTO_GRE)
+except socket.error, msg:
+    print 'Socket could not be created. Error Code : ' + \
+        str(msg[0]) + ' Message ' + msg[1]
+    sys.exit()
+
 # Connect the socket to the port where the server is listening
 server_address = (sys.argv[1], int(sys.argv[2]))
 print >>sys.stderr, 'connecting to %s port %s' % server_address
 sock.connect(server_address)
 
 try:
-    
+
     # Send data
     message = 'This is the message.  It will be repeated.'
     print >>sys.stderr, 'sending "%s"' % message
@@ -34,7 +42,7 @@ try:
     # Look for the response
     amount_received = 0
     amount_expected = len(message)
-    
+
     while amount_received < amount_expected:
         data = sock.recv(16)
         amount_received += len(data)
