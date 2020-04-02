@@ -4,7 +4,9 @@
 # - for a rule element indicates that you don't need to match it.
 # Comments are on their own line
 
-# Negate all hosts from accessing a SSH server on the east hosts (e1-e3).
-3, -, -, -, 10.0.0.2, 22, -, T, -
-4, -, -, -, 10.0.0.3, 22, -, T, -
-5, -, -, -, 10.0.0.4, 22, -, T, -
+
+# 7. Prohibit all hosts from accessing a L2TP/IPSEC server running on server3.
+51, -, -, -, 10.0.0.7, -, 1701, U, -
+52, -, -, -, 10.0.0.7, -, 500, U, -
+53, -, 00:00:00:00:00:07, -, -, -, 1701, U, -
+54, -, 00:00:00:00:00:07, -, -, -, 500, U, -
